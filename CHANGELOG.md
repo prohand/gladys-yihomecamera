@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-22
+
 ### Added
 
 - First version of the Yi Home Cameras integration, for Yi Home cameras running
@@ -36,4 +38,5 @@ the notes of the version's GitHub Release.
 - CI (Prettier, ESLint, tests on Node 22 and 24, store checks, Docker build),
   UI-driven Release workflow, GitHub Releases, Dependabot.
 
-[Unreleased]: https://github.com/prohand/gladys-yihomecamera/commits/main
+[Unreleased]: https://github.com/prohand/gladys-yihomecamera/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/prohand/gladys-yihomecamera/releases/tag/v1.0.1
