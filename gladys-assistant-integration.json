@@ -1,0 +1,951 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "Yi Home Cameras",
+  "description": {
+    "en": "Yi Home cameras with the yi-hack firmware: snapshots, motion, privacy mode and PTZ, local.",
+    "fr": "Caméras Yi Home avec le firmware yi-hack : images, mouvement, mode privé et PTZ, en local.",
+    "de": "Yi-Home-Kameras mit yi-hack-Firmware: Bilder, Bewegung, Privatmodus und PTZ, lokal.",
+    "es": "Cámaras Yi Home con el firmware yi-hack: imágenes, movimiento, modo privado y PTZ, en local."
+  },
+  "version": "1.0.0",
+  "docker_image": "ghcr.io/prohand/gladys-yihomecamera:1.0.0",
+  "gladys_version": ">=5.3.0",
+  "cover_image": "https://raw.githubusercontent.com/prohand/gladys-yihomecamera/main/cover.png",
+  "categories": ["security", "multimedia"],
+  "keywords": [
+    "yi home",
+    "yi-hack",
+    "kami home",
+    "xiaoyi",
+    "yi dome",
+    "yi outdoor",
+    "yi 1080p",
+    "caméra ip",
+    "ip camera",
+    "ptz"
+  ],
+  "countries": [
+    "FR",
+    "BE",
+    "CH",
+    "LU",
+    "MC",
+    "CA",
+    "DE",
+    "AT",
+    "ES",
+    "MX",
+    "AR",
+    "CO",
+    "CL",
+    "PE",
+    "US",
+    "GB",
+    "IE",
+    "IT",
+    "PT",
+    "NL"
+  ],
+  "transports": ["local"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Getting started",
+        "fr": "Pour commencer",
+        "de": "Erste Schritte",
+        "es": "Primeros pasos"
+      },
+      "description": {
+        "en": "The stock Yi Home firmware has no local access: everything goes through the Yi cloud. This integration talks to cameras flashed with the free yi-hack firmware (MStar, Allwinner, Allwinner-v2 or v5, depending on the model), directly on your network, with no Yi account. Flash the camera, give it a fixed IP address, then type that address below.",
+        "fr": "Le firmware d'origine des caméras Yi Home n'offre aucun accès local : tout passe par le cloud Yi. Cette intégration parle aux caméras équipées du firmware libre yi-hack (MStar, Allwinner, Allwinner-v2 ou v5 selon le modèle), directement sur votre réseau, sans compte Yi. Installez le firmware, donnez une adresse IP fixe à la caméra, puis indiquez cette adresse ci-dessous.",
+        "de": "Die Original-Firmware der Yi-Home-Kameras bietet keinen lokalen Zugriff: Alles läuft über die Yi-Cloud. Diese Integration spricht mit Kameras, auf denen die freie Firmware yi-hack läuft (MStar, Allwinner, Allwinner-v2 oder v5, je nach Modell), direkt in deinem Netzwerk, ohne Yi-Konto. Installiere die Firmware, gib der Kamera eine feste IP-Adresse und trage diese Adresse unten ein.",
+        "es": "El firmware original de las cámaras Yi Home no ofrece acceso local: todo pasa por la nube de Yi. Esta integración habla con las cámaras que llevan el firmware libre yi-hack (MStar, Allwinner, Allwinner-v2 o v5 según el modelo), directamente en su red, sin cuenta Yi. Instale el firmware, dé una dirección IP fija a la cámara y escriba esa dirección abajo."
+      },
+      "links": [
+        {
+          "url": "https://github.com/roleoroleo/yi-hack-Allwinner-v2",
+          "label": {
+            "en": "yi-hack Allwinner-v2",
+            "fr": "yi-hack Allwinner-v2",
+            "de": "yi-hack Allwinner-v2",
+            "es": "yi-hack Allwinner-v2"
+          }
+        },
+        {
+          "url": "https://github.com/roleoroleo/yi-hack-MStar",
+          "label": {
+            "en": "yi-hack MStar",
+            "fr": "yi-hack MStar",
+            "de": "yi-hack MStar",
+            "es": "yi-hack MStar"
+          }
+        },
+        {
+          "url": "https://github.com/prohand/gladys-yihomecamera/blob/main/docs/en.md",
+          "label": {
+            "en": "Integration documentation",
+            "fr": "Documentation de l'intégration",
+            "de": "Dokumentation der Integration",
+            "es": "Documentación de la integración"
+          }
+        }
+      ]
+    },
+    {
+      "key": "cameras",
+      "type": "string",
+      "label": {
+        "en": "Camera addresses",
+        "fr": "Adresses des caméras",
+        "de": "Adressen der Kameras",
+        "es": "Direcciones de las cámaras"
+      },
+      "description": {
+        "en": "The IP address of each camera, separated by commas. Add :port when the yi-hack web interface does not listen on port 80.",
+        "fr": "L'adresse IP de chaque caméra, séparées par des virgules. Ajoutez :port si l'interface web yi-hack n'écoute pas sur le port 80.",
+        "de": "Die IP-Adresse jeder Kamera, durch Kommas getrennt. Füge :Port hinzu, wenn die yi-hack-Weboberfläche nicht auf Port 80 hört.",
+        "es": "La dirección IP de cada cámara, separadas por comas. Añada :puerto si la interfaz web de yi-hack no escucha en el puerto 80."
+      },
+      "placeholder": {
+        "en": "192.168.1.20, 192.168.1.21:8080",
+        "fr": "192.168.1.20, 192.168.1.21:8080",
+        "de": "192.168.1.20, 192.168.1.21:8080",
+        "es": "192.168.1.20, 192.168.1.21:8080"
+      },
+      "required": true,
+      "default": ""
+    },
+    {
+      "key": "username",
+      "type": "string",
+      "label": {
+        "en": "User name",
+        "fr": "Nom d'utilisateur",
+        "de": "Benutzername",
+        "es": "Usuario"
+      },
+      "description": {
+        "en": "Only if you protected the yi-hack web interface (Configuration > System > HTTP authentication). The same one for every camera.",
+        "fr": "Uniquement si vous avez protégé l'interface web yi-hack (Configuration > Système > authentification HTTP). Le même pour toutes les caméras.",
+        "de": "Nur wenn du die yi-hack-Weboberfläche geschützt hast (Konfiguration > System > HTTP-Authentifizierung). Derselbe für alle Kameras.",
+        "es": "Solo si protegió la interfaz web de yi-hack (Configuración > Sistema > autenticación HTTP). El mismo para todas las cámaras."
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "password",
+      "type": "secret",
+      "label": {
+        "en": "Password",
+        "fr": "Mot de passe",
+        "de": "Passwort",
+        "es": "Contraseña"
+      },
+      "description": {
+        "en": "Password of the yi-hack web interface, if any.",
+        "fr": "Mot de passe de l'interface web yi-hack, s'il y en a un.",
+        "de": "Passwort der yi-hack-Weboberfläche, falls vorhanden.",
+        "es": "Contraseña de la interfaz web de yi-hack, si la hay."
+      },
+      "required": false
+    },
+    {
+      "key": "poll_frequency",
+      "type": "number",
+      "label": {
+        "en": "Refresh interval (s)",
+        "fr": "Intervalle de rafraîchissement (s)",
+        "de": "Aktualisierungsintervall (s)",
+        "es": "Intervalo de actualización (s)"
+      },
+      "description": {
+        "en": "How often the state of the cameras is read (on/off, LED, night vision, Wi-Fi), in seconds.",
+        "fr": "Fréquence de lecture de l'état des caméras (marche/arrêt, LED, vision nocturne, Wi-Fi), en secondes.",
+        "de": "Wie oft der Zustand der Kameras gelesen wird (an/aus, LED, Nachtsicht, WLAN), in Sekunden.",
+        "es": "Frecuencia de lectura del estado de las cámaras (encendido, LED, visión nocturna, Wi-Fi), en segundos."
+      },
+      "required": false,
+      "default": 30,
+      "min": 10,
+      "max": 3600
+    },
+    {
+      "key": "snapshot_interval",
+      "type": "number",
+      "label": {
+        "en": "Snapshot interval (s)",
+        "fr": "Intervalle des images (s)",
+        "de": "Bildintervall (s)",
+        "es": "Intervalo de imágenes (s)"
+      },
+      "description": {
+        "en": "How often a new image of each camera is sent to Gladys, in seconds (10 minimum). 0 sends none: the dashboard then asks for a fresh image when it is opened.",
+        "fr": "Fréquence d'envoi d'une nouvelle image de chaque caméra à Gladys, en secondes (10 minimum). 0 n'en envoie aucune : le tableau de bord demande alors une image fraîche à l'ouverture.",
+        "de": "Wie oft ein neues Bild jeder Kamera an Gladys gesendet wird, in Sekunden (mindestens 10). 0 sendet keines: Das Dashboard fragt dann beim Öffnen ein frisches Bild an.",
+        "es": "Frecuencia de envío de una nueva imagen de cada cámara a Gladys, en segundos (10 como mínimo). 0 no envía ninguna: el panel pide entonces una imagen nueva al abrirse."
+      },
+      "required": false,
+      "default": 60,
+      "min": 0,
+      "max": 3600
+    },
+    {
+      "key": "snapshot_resolution",
+      "type": "select",
+      "label": {
+        "en": "Image resolution",
+        "fr": "Résolution des images",
+        "de": "Bildauflösung",
+        "es": "Resolución de las imágenes"
+      },
+      "description": {
+        "en": "Low (640×360) is light and always accepted by Gladys. High (1080p) is sharper; an image too heavy for Gladys falls back to low.",
+        "fr": "Basse (640×360) est légère et toujours acceptée par Gladys. Haute (1080p) est plus nette ; une image trop lourde pour Gladys repasse en basse.",
+        "de": "Niedrig (640×360) ist leicht und wird von Gladys immer angenommen. Hoch (1080p) ist schärfer; ein für Gladys zu großes Bild fällt auf niedrig zurück.",
+        "es": "Baja (640×360) es ligera y Gladys siempre la acepta. Alta (1080p) es más nítida; una imagen demasiado pesada para Gladys vuelve a baja."
+      },
+      "required": false,
+      "default": "low",
+      "options": [
+        {
+          "value": "low",
+          "label": {
+            "en": "Low (640×360)",
+            "fr": "Basse (640×360)",
+            "de": "Niedrig (640×360)",
+            "es": "Baja (640×360)"
+          }
+        },
+        {
+          "value": "high",
+          "label": {
+            "en": "High (1080p)",
+            "fr": "Haute (1080p)",
+            "de": "Hoch (1080p)",
+            "es": "Alta (1080p)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "motion_section",
+      "type": "section",
+      "label": {
+        "en": "Motion detection",
+        "fr": "Détection de mouvement",
+        "de": "Bewegungserkennung",
+        "es": "Detección de movimiento"
+      },
+      "description": {
+        "en": "Without MQTT, a motion is noticed when the camera records a new clip: turn on \"Save video on motion\" in the camera settings, and expect up to a minute of delay. With MQTT, motion, people, vehicles, animals, sounds and baby crying arrive in real time: set the same broker in the yi-hack MQTT page and below, with a different MQTT prefix for each camera.",
+        "fr": "Sans MQTT, un mouvement est repéré quand la caméra enregistre une nouvelle vidéo : activez « Enregistrer sur mouvement » dans les réglages de la caméra, avec jusqu'à une minute de retard. Avec MQTT, mouvement, personnes, véhicules, animaux, sons et pleurs de bébé arrivent en temps réel : indiquez le même broker dans la page MQTT de yi-hack et ci-dessous, avec un préfixe MQTT différent pour chaque caméra.",
+        "de": "Ohne MQTT wird eine Bewegung erkannt, wenn die Kamera einen neuen Clip aufnimmt: Schalte „Video bei Bewegung speichern“ in den Kameraeinstellungen ein und rechne mit bis zu einer Minute Verzögerung. Mit MQTT kommen Bewegung, Personen, Fahrzeuge, Tiere, Geräusche und Babyweinen in Echtzeit an: Trage denselben Broker auf der MQTT-Seite von yi-hack und unten ein, mit einem eigenen MQTT-Präfix für jede Kamera.",
+        "es": "Sin MQTT, un movimiento se detecta cuando la cámara graba un nuevo vídeo: active «Guardar vídeo con movimiento» en los ajustes de la cámara, con hasta un minuto de retraso. Con MQTT, movimiento, personas, vehículos, animales, sonidos y llanto de bebé llegan en tiempo real: indique el mismo broker en la página MQTT de yi-hack y abajo, con un prefijo MQTT distinto para cada cámara."
+      }
+    },
+    {
+      "key": "mqtt_url",
+      "type": "string",
+      "label": {
+        "en": "MQTT broker",
+        "fr": "Broker MQTT",
+        "de": "MQTT-Broker",
+        "es": "Broker MQTT"
+      },
+      "description": {
+        "en": "Address of the MQTT broker the cameras publish to. Leave empty to deduce the motion from the recordings.",
+        "fr": "Adresse du broker MQTT où publient les caméras. Laissez vide pour déduire le mouvement des enregistrements.",
+        "de": "Adresse des MQTT-Brokers, an den die Kameras senden. Leer lassen, um die Bewegung aus den Aufnahmen abzuleiten.",
+        "es": "Dirección del broker MQTT en el que publican las cámaras. Déjelo vacío para deducir el movimiento de las grabaciones."
+      },
+      "placeholder": {
+        "en": "mqtt://192.168.1.10:1883",
+        "fr": "mqtt://192.168.1.10:1883",
+        "de": "mqtt://192.168.1.10:1883",
+        "es": "mqtt://192.168.1.10:1883"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "mqtt_username",
+      "type": "string",
+      "label": {
+        "en": "MQTT user name",
+        "fr": "Nom d'utilisateur MQTT",
+        "de": "MQTT-Benutzername",
+        "es": "Usuario MQTT"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "mqtt_password",
+      "type": "secret",
+      "label": {
+        "en": "MQTT password",
+        "fr": "Mot de passe MQTT",
+        "de": "MQTT-Passwort",
+        "es": "Contraseña MQTT"
+      },
+      "required": false
+    },
+    {
+      "key": "motion_timeout",
+      "type": "number",
+      "label": {
+        "en": "Motion duration (s)",
+        "fr": "Durée du mouvement (s)",
+        "de": "Bewegungsdauer (s)",
+        "es": "Duración del movimiento (s)"
+      },
+      "description": {
+        "en": "How long the motion sensor stays on after a detection, when the camera does not say the motion stopped.",
+        "fr": "Combien de temps le détecteur de mouvement reste actif après une détection, quand la caméra ne signale pas la fin du mouvement.",
+        "de": "Wie lange der Bewegungsmelder nach einer Erkennung aktiv bleibt, wenn die Kamera das Ende der Bewegung nicht meldet.",
+        "es": "Cuánto tiempo permanece activo el sensor de movimiento tras una detección, cuando la cámara no indica el fin del movimiento."
+      },
+      "required": false,
+      "default": 60,
+      "min": 10,
+      "max": 600
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 60
+    },
+    {
+      "key": "identify",
+      "label": {
+        "en": "Identify a camera",
+        "fr": "Identifier une caméra",
+        "de": "Kamera identifizieren",
+        "es": "Identificar una cámara"
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "identify_intro",
+          "type": "section",
+          "label": {
+            "en": "Which camera is it?",
+            "fr": "Quelle caméra est-ce ?",
+            "de": "Welche Kamera ist es?",
+            "es": "¿Qué cámara es?"
+          },
+          "description": {
+            "en": "The LED of the chosen camera blinks three times, then goes back to how it was.",
+            "fr": "La LED de la caméra choisie clignote trois fois, puis revient comme avant.",
+            "de": "Die LED der gewählten Kamera blinkt dreimal und kehrt dann in ihren vorherigen Zustand zurück.",
+            "es": "El LED de la cámara elegida parpadea tres veces y luego vuelve a como estaba."
+          }
+        },
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "reboot",
+      "label": {
+        "en": "Reboot a camera",
+        "fr": "Redémarrer une caméra",
+        "de": "Kamera neu starten",
+        "es": "Reiniciar una cámara"
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        }
+      ]
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "motion_detected",
+      "label": {
+        "en": "A camera detects motion",
+        "fr": "Une caméra détecte un mouvement",
+        "de": "Eine Kamera erkennt Bewegung",
+        "es": "Una cámara detecta movimiento"
+      },
+      "description": {
+        "en": "Motion, or what the camera AI recognized: a person, a vehicle, an animal (AI needs MQTT).",
+        "fr": "Un mouvement, ou ce que l'IA de la caméra a reconnu : personne, véhicule, animal (l'IA demande MQTT).",
+        "de": "Eine Bewegung oder was die KI der Kamera erkannt hat: Person, Fahrzeug, Tier (KI benötigt MQTT).",
+        "es": "Un movimiento, o lo que la IA de la cámara reconoció: persona, vehículo, animal (la IA requiere MQTT)."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": false
+        },
+        {
+          "key": "detection",
+          "type": "multi_select",
+          "label": {
+            "en": "Detection",
+            "fr": "Détection",
+            "de": "Erkennung",
+            "es": "Detección"
+          },
+          "options": [
+            {
+              "value": "motion",
+              "label": {
+                "en": "Motion",
+                "fr": "Mouvement",
+                "de": "Bewegung",
+                "es": "Movimiento"
+              }
+            },
+            {
+              "value": "human",
+              "label": {
+                "en": "Person",
+                "fr": "Personne",
+                "de": "Person",
+                "es": "Persona"
+              }
+            },
+            {
+              "value": "vehicle",
+              "label": {
+                "en": "Vehicle",
+                "fr": "Véhicule",
+                "de": "Fahrzeug",
+                "es": "Vehículo"
+              }
+            },
+            {
+              "value": "animal",
+              "label": {
+                "en": "Animal",
+                "fr": "Animal",
+                "de": "Tier",
+                "es": "Animal"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Camera name",
+            "fr": "Nom de la caméra",
+            "de": "Kameraname",
+            "es": "Nombre de la cámara"
+          }
+        },
+        {
+          "key": "detection",
+          "type": "string",
+          "label": {
+            "en": "Detection",
+            "fr": "Détection",
+            "de": "Erkennung",
+            "es": "Detección"
+          }
+        }
+      ]
+    },
+    {
+      "key": "sound_detected",
+      "label": {
+        "en": "A camera hears a sound",
+        "fr": "Une caméra entend un son",
+        "de": "Eine Kamera hört ein Geräusch",
+        "es": "Una cámara oye un sonido"
+      },
+      "description": {
+        "en": "A loud sound or a baby crying, as the camera reports it over MQTT.",
+        "fr": "Un bruit fort ou un bébé qui pleure, signalé par la caméra via MQTT.",
+        "de": "Ein lautes Geräusch oder ein weinendes Baby, von der Kamera über MQTT gemeldet.",
+        "es": "Un ruido fuerte o un bebé llorando, comunicado por la cámara por MQTT."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": false
+        },
+        {
+          "key": "sound",
+          "type": "multi_select",
+          "label": {
+            "en": "Sound",
+            "fr": "Son",
+            "de": "Geräusch",
+            "es": "Sonido"
+          },
+          "options": [
+            {
+              "value": "sound",
+              "label": {
+                "en": "Loud sound",
+                "fr": "Bruit fort",
+                "de": "Lautes Geräusch",
+                "es": "Ruido fuerte"
+              }
+            },
+            {
+              "value": "crying",
+              "label": {
+                "en": "Baby crying",
+                "fr": "Pleurs de bébé",
+                "de": "Babyweinen",
+                "es": "Llanto de bebé"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Camera name",
+            "fr": "Nom de la caméra",
+            "de": "Kameraname",
+            "es": "Nombre de la cámara"
+          }
+        },
+        {
+          "key": "sound",
+          "type": "string",
+          "label": {
+            "en": "Sound",
+            "fr": "Son",
+            "de": "Geräusch",
+            "es": "Sonido"
+          }
+        }
+      ]
+    },
+    {
+      "key": "camera_offline",
+      "label": {
+        "en": "A camera stops answering",
+        "fr": "Une caméra ne répond plus",
+        "de": "Eine Kamera antwortet nicht mehr",
+        "es": "Una cámara deja de responder"
+      },
+      "description": {
+        "en": "Unplugged, out of Wi-Fi range, or crashed. A reboot asked from Gladys does not fire it.",
+        "fr": "Débranchée, hors de portée du Wi-Fi ou plantée. Un redémarrage demandé depuis Gladys ne le déclenche pas.",
+        "de": "Ausgesteckt, außer WLAN-Reichweite oder abgestürzt. Ein von Gladys angeforderter Neustart löst es nicht aus.",
+        "es": "Desenchufada, fuera del alcance del Wi-Fi o bloqueada. Un reinicio pedido desde Gladys no lo activa."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": false
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Camera name",
+            "fr": "Nom de la caméra",
+            "de": "Kameraname",
+            "es": "Nombre de la cámara"
+          }
+        },
+        {
+          "key": "host",
+          "type": "string",
+          "label": {
+            "en": "Address",
+            "fr": "Adresse",
+            "de": "Adresse",
+            "es": "Dirección"
+          }
+        }
+      ]
+    },
+    {
+      "key": "camera_online",
+      "label": {
+        "en": "A camera answers again",
+        "fr": "Une caméra répond de nouveau",
+        "de": "Eine Kamera antwortet wieder",
+        "es": "Una cámara vuelve a responder"
+      },
+      "description": {
+        "en": "A camera that had stopped answering is back.",
+        "fr": "Une caméra qui ne répondait plus est de retour.",
+        "de": "Eine Kamera, die nicht mehr antwortete, ist zurück.",
+        "es": "Una cámara que ya no respondía ha vuelto."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": false
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Camera name",
+            "fr": "Nom de la caméra",
+            "de": "Kameraname",
+            "es": "Nombre de la cámara"
+          }
+        },
+        {
+          "key": "host",
+          "type": "string",
+          "label": {
+            "en": "Address",
+            "fr": "Adresse",
+            "de": "Adresse",
+            "es": "Dirección"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "take_snapshot",
+      "label": {
+        "en": "Take a snapshot",
+        "fr": "Prendre une photo",
+        "de": "Schnappschuss aufnehmen",
+        "es": "Tomar una captura"
+      },
+      "description": {
+        "en": "Send a fresh image of the camera to Gladys, e.g. right before a notification.",
+        "fr": "Envoie une image fraîche de la caméra à Gladys, par exemple juste avant une notification.",
+        "de": "Sendet ein frisches Bild der Kamera an Gladys, z. B. direkt vor einer Benachrichtigung.",
+        "es": "Envía una imagen nueva de la cámara a Gladys, p. ej. justo antes de una notificación."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "captured",
+          "type": "boolean",
+          "label": {
+            "en": "Image taken",
+            "fr": "Image prise",
+            "de": "Bild aufgenommen",
+            "es": "Imagen tomada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "go_to_preset",
+      "label": {
+        "en": "Turn a camera to a preset",
+        "fr": "Tourner une caméra vers une position",
+        "de": "Kamera auf eine Position drehen",
+        "es": "Girar una cámara a una posición"
+      },
+      "description": {
+        "en": "PTZ cameras only: move to a position saved in the yi-hack web interface (0 to 7).",
+        "fr": "Caméras motorisées uniquement : va à une position enregistrée dans l'interface web yi-hack (0 à 7).",
+        "de": "Nur schwenkbare Kameras: fährt eine in der yi-hack-Weboberfläche gespeicherte Position an (0 bis 7).",
+        "es": "Solo cámaras motorizadas: va a una posición guardada en la interfaz web de yi-hack (0 a 7)."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        },
+        {
+          "key": "preset",
+          "type": "number",
+          "label": {
+            "en": "Preset number",
+            "fr": "Numéro de la position",
+            "de": "Positionsnummer",
+            "es": "Número de posición"
+          },
+          "required": true,
+          "min": 0,
+          "max": 7
+        }
+      ],
+      "outputs": [
+        {
+          "key": "moved",
+          "type": "boolean",
+          "label": {
+            "en": "Camera moved",
+            "fr": "Caméra tournée",
+            "de": "Kamera bewegt",
+            "es": "Cámara girada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "set_motion_sensitivity",
+      "label": {
+        "en": "Set the motion sensitivity",
+        "fr": "Régler la sensibilité au mouvement",
+        "de": "Bewegungsempfindlichkeit einstellen",
+        "es": "Ajustar la sensibilidad al movimiento"
+      },
+      "description": {
+        "en": "E.g. high at night, low during the day when the curtains move.",
+        "fr": "Par exemple haute la nuit, basse le jour quand les rideaux bougent.",
+        "de": "Z. B. hoch in der Nacht, niedrig tagsüber, wenn sich die Vorhänge bewegen.",
+        "es": "P. ej. alta de noche, baja de día cuando se mueven las cortinas."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        },
+        {
+          "key": "sensitivity",
+          "type": "select",
+          "label": {
+            "en": "Sensitivity",
+            "fr": "Sensibilité",
+            "de": "Empfindlichkeit",
+            "es": "Sensibilidad"
+          },
+          "required": true,
+          "options": [
+            {
+              "value": "low",
+              "label": {
+                "en": "Low",
+                "fr": "Basse",
+                "de": "Niedrig",
+                "es": "Baja"
+              }
+            },
+            {
+              "value": "medium",
+              "label": {
+                "en": "Medium",
+                "fr": "Moyenne",
+                "de": "Mittel",
+                "es": "Media"
+              }
+            },
+            {
+              "value": "high",
+              "label": {
+                "en": "High",
+                "fr": "Haute",
+                "de": "Hoch",
+                "es": "Alta"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "applied",
+          "type": "boolean",
+          "label": {
+            "en": "Applied",
+            "fr": "Appliquée",
+            "de": "Übernommen",
+            "es": "Aplicada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "reboot_camera",
+      "label": {
+        "en": "Reboot a camera",
+        "fr": "Redémarrer une caméra",
+        "de": "Kamera neu starten",
+        "es": "Reiniciar una cámara"
+      },
+      "description": {
+        "en": "Restart the camera; it is back about a minute later.",
+        "fr": "Redémarre la caméra ; elle revient environ une minute plus tard.",
+        "de": "Startet die Kamera neu; sie ist etwa eine Minute später zurück.",
+        "es": "Reinicia la cámara; vuelve aproximadamente un minuto después."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "rebooted",
+          "type": "boolean",
+          "label": {
+            "en": "Reboot sent",
+            "fr": "Redémarrage envoyé",
+            "de": "Neustart gesendet",
+            "es": "Reinicio enviado"
+          }
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "yi_camera",
+      "label": {
+        "en": "Yi camera",
+        "fr": "Caméra Yi",
+        "de": "Yi-Kamera",
+        "es": "Cámara Yi"
+      },
+      "description": {
+        "en": "Last image, state and buttons of one camera.",
+        "fr": "Dernière image, état et boutons d'une caméra.",
+        "de": "Letztes Bild, Zustand und Tasten einer Kamera.",
+        "es": "Última imagen, estado y botones de una cámara."
+      },
+      "icon": "video",
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        }
+      ],
+      "action_timeout_seconds": 30
+    },
+    {
+      "key": "yi_cameras",
+      "label": {
+        "en": "Yi cameras",
+        "fr": "Caméras Yi",
+        "de": "Yi-Kameras",
+        "es": "Cámaras Yi"
+      },
+      "description": {
+        "en": "Every camera at a glance: online, off, motion.",
+        "fr": "Toutes les caméras d'un coup d'œil : en ligne, éteinte, mouvement.",
+        "de": "Alle Kameras auf einen Blick: online, aus, Bewegung.",
+        "es": "Todas las cámaras de un vistazo: en línea, apagada, movimiento."
+      },
+      "icon": "grid",
+      "action_timeout_seconds": 60
+    }
+  ]
+}
