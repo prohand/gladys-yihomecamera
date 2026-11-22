@@ -32,6 +32,12 @@ on:
           - minor
           - major
 
+# One release at a time: two runs started back to back would compute the same
+# next version and the second push would be rejected half-way.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   prepare:
     runs-on: ubuntu-latest

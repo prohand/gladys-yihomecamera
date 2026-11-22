@@ -14,6 +14,10 @@
 #
 # That is ALL it takes to "publish": tag, push, and the decentralized indexer
 # does the rest (no review, no account to create).
+#
+# GitHub only lists a workflow in the Actions tab once a push to the default
+# branch touches its file: a workflow that never runs on that push (no
+# `push: branches: main` trigger) stays hidden until then.
 # -----------------------------------------------------------------------------
 name: Build and publish image
 
